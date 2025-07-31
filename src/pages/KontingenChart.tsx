@@ -14,6 +14,8 @@ import axios from "axios";
 import AttendanceSettings from "../components/DashboardChart/AttendanceSettings";
 import PieChartContainer from "../components/DashboardChart/PieChartContainer";
 import SummaryStats from "../components/DashboardChart/SummaryStats";
+import AbsensiInTable from "../components/DashboardChart/AbsensiInTable";
+import AbsensiOutTable from "../components/DashboardChart/AbsensiOutTable";
 import AttendanceSettingsButton from "../components/AttendanceSettingsButton";
 import { Notification } from "../components/DashboardAbsensi/Notification";
 import { AlertSection } from "../components/DashboardAbsensi/AlertSection";
@@ -150,6 +152,8 @@ const KontingenChart = ({ isSidebarOpen }: KontingenChartProps) => {
         queryClient.invalidateQueries({
           queryKey: ["attendanceChartData", undefined],
         });
+        queryClient.invalidateQueries({ queryKey: ["absensi"] }); // Invalidate absensi data
+        queryClient.invalidateQueries({ queryKey: ["statistics"] });
       }
     }
     prevAbsensi.current = [...absensi];
@@ -241,6 +245,16 @@ const KontingenChart = ({ isSidebarOpen }: KontingenChartProps) => {
       width: { xs: "100%", md: "auto" },
       maxWidth: "200px", // Constrain button width
     },
+    tableSection: {
+      display: "flex",
+      flexDirection: { xs: "column", md: "row" }, // Stack on mobile, side-by-side on desktop
+      gap: "20px", // Jarak antar tabel
+      width: "100%",
+      maxWidth: "1400px",
+      justifyContent: "center",
+      mt: 4, // Margin top untuk memisahkan dari bagian atas
+      px: { xs: 2, md: 0 }, // Padding horizontal untuk mobile
+    },
   };
 
   return (
@@ -275,6 +289,10 @@ const KontingenChart = ({ isSidebarOpen }: KontingenChartProps) => {
               isCameraLoading={isCameraLoading}
             />
           )}
+        </Box>
+        <Box sx={dynamicStyles.tableSection}>
+          <AbsensiInTable data={groupedAbsensi} />
+          <AbsensiOutTable data={groupedAbsensi} />
         </Box>
         <AttendanceSettings
           showSettings={showSettings}
