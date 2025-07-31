@@ -1,4 +1,3 @@
-// components/DashboardChart/AbsensiInTable.tsx
 import React from "react";
 import {
   Table,
@@ -11,18 +10,18 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import type { Absensi, GroupedAbsensi } from "../../types"; // Import Absensi juga jika diperlukan, tapi GroupedAbsensi sudah cukup
+import type { GroupedAbsensi } from "../../types";
 
 interface AbsensiInTableProps {
   data: GroupedAbsensi[];
 }
 
 const AbsensiInTable: React.FC<AbsensiInTableProps> = ({ data }) => {
-  // Filter data untuk hanya menampilkan absensi IN terbaru untuk hari ini
-  const today = new Date(); // Dapatkan tanggal hari ini
-  const inData = data
+  // --- Modifikasi Logika Data ---
+  // Kita akan memetakan semua karyawan, bukan hanya yang punya absensi IN hari ini
+  const today = new Date();
+  const processedData = data
     .map((group) => {
-      // Ambil absensi IN untuk karyawan ini pada hari ini
       const latestInToday = group.history
         .filter(
           (item) =>
@@ -31,47 +30,31 @@ const AbsensiInTable: React.FC<AbsensiInTableProps> = ({ data }) => {
         )
         .sort(
           (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
-        )[0]; // Ambil yang paling terbaru
+        )[0];
 
-      return latestInToday
-        ? {
-            employee_id: group.employee_id,
-            nama: group.nama,
-            face_image_url: group.face_image_url,
-            latestTime: latestInToday.time, // Waktu IN terbaru
-          }
-        : null;
+      return {
+        employee_id: group.employee_id,
+        nama: group.nama,
+        face_image_url: group.face_image_url,
+        latestTime: latestInToday ? latestInToday.time : null, // Tetap sertakan, bisa null
+      };
     })
-    .filter(Boolean) // Hapus karyawan yang tidak punya absensi IN hari ini
-    .sort(
-      (a, b) => new Date(b!.latestTime).getTime() - new Date(a!.latestTime).getTime()
-    ); // Urutkan hasil akhir berdasarkan waktu IN terbaru dari semua karyawan
+    .sort((a, b) => {
+      // Urutkan berdasarkan waktu terbaru (yang paling baru di atas).
+      // Entri null akan berada di bawah (jika belum absen).
+      if (a.latestTime && b.latestTime) {
+        return new Date(b.latestTime).getTime() - new Date(a.latestTime).getTime();
+      }
+      if (a.latestTime) return -1; // a punya waktu, b tidak, a di atas
+      if (b.latestTime) return 1;  // b punya waktu, a tidak, b di atas
+      return 0; // Keduanya tidak punya waktu, urutan tetap
+    });
 
-  if (inData.length === 0) {
-    return (
-      <Box
-        sx={{
-          mt: 4,
-          p: 2,
-          backgroundColor: "background.paper",
-          borderRadius: 2,
-          boxShadow: 3,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "150px",
-          width: "100%", // Agar mengambil lebar penuh
-        }}
-      >
-        <Typography variant="h6" color="text.secondary">
-          Belum ada data absensi Masuk hari ini.
-        </Typography>
-      </Box>
-    );
-  }
+  // Hapus kondisi if (inData.length === 0)
+  // Tabel akan selalu dirender, meskipun isinya ada yang belum absen.
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 4, maxHeight: 400, flex: 1 }}> {/* flex: 1 agar berbagi ruang */}
+    <TableContainer component={Paper} sx={{ mt: 4, maxHeight: 400, flex: 1 }}>
       <Typography variant="h6" component="div" sx={{ p: 2 }}>
         Data Absensi Masuk (IN) Hari Ini
       </Typography>
@@ -84,17 +67,19 @@ const AbsensiInTable: React.FC<AbsensiInTableProps> = ({ data }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {inData.map((row) => (
-            <TableRow key={row!.employee_id}>
-              <TableCell>{row!.nama}</TableCell>
+          {processedData.map((row) => (
+            <TableRow key={row.employee_id}> {/* Hapus `!` karena sudah dipastikan tidak null */}
+              <TableCell>{row.nama}</TableCell>
               <TableCell>
-                {new Date(row!.latestTime).toLocaleTimeString()}
+                {row.latestTime
+                  ? new Date(row.latestTime).toLocaleTimeString()
+                  : "-"} {/* Tampilkan '-' jika belum absen */}
               </TableCell>
               <TableCell>
-                {row!.face_image_url && (
+                {row.face_image_url && (
                   <img
-                    src={row!.face_image_url}
-                    alt={row!.nama}
+                    src={row.face_image_url}
+                    alt={row.nama}
                     style={{ width: 50, height: 50, borderRadius: "50%", objectFit: "cover" }}
                   />
                 )}
