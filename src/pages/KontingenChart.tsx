@@ -152,8 +152,8 @@ const KontingenChart = ({ isSidebarOpen }: KontingenChartProps) => {
         queryClient.invalidateQueries({
           queryKey: ["attendanceChartData", undefined],
         });
-        queryClient.invalidateQueries({ queryKey: ["absensi"] }); // Invalidate absensi data
-        queryClient.invalidateQueries({ queryKey: ["statistics"] });
+        // queryClient.invalidateQueries({ queryKey: ["absensi"] }); 
+        // queryClient.invalidateQueries({ queryKey: ["statistics"] });
       }
     }
     prevAbsensi.current = [...absensi];

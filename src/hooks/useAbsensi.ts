@@ -71,6 +71,9 @@ export const useStatistics = () => {
     queryKey: ["statistics"],
     queryFn: fetchStatistics,
     retry: 2,
+    refetchInterval: 5000,
+    retryDelay: 1000,
+    staleTime: 4000,
   });
 };
 
@@ -89,6 +92,7 @@ export const useAttendanceStatuses = (date: string, kontingen?: string) => {
     queryFn: () => fetchAttendanceStatuses(date, kontingen),
     retry: 2,
     enabled: !!date,
+    refetchInterval: 10000,
   });
 };
 
