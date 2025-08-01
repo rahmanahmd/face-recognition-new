@@ -71,7 +71,7 @@ const KontingenChart = ({ isSidebarOpen }: KontingenChartProps) => {
 
   // Hitung persentase masuk dan pulang dari absensi
   const { persentaseMasuk, persentasePulang } = useMemo(() => {
-    const today = new Date("2025-07-31");
+    const today = new Date("2025-08-01");
     const absensiMasuk = absensi.filter(
       (a) =>
         a.attendance_type === "IN" &&

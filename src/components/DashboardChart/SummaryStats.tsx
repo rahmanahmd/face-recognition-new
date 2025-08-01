@@ -59,7 +59,7 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({
       shadowColor: "rgba(239, 68, 68, 0.4)",
     },
     {
-      title: "Kamera Aktif",
+      title: "Device Aktif",
       value: isCameraLoading ? "..." : cameraStatus?.activeCameras || 0,
       icon: Camera,
       color: "#8b5cf6",
